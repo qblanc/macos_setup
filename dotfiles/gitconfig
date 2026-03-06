@@ -1,0 +1,83 @@
+[color]
+  branch = auto
+  diff = auto
+  interactive = auto
+  status = auto
+  ui = auto
+
+[color "branch"]
+  current = green
+  remote = yellow
+
+[core]
+  pager = less -FRSX
+	editor = code --wait
+
+[alias]
+  co = checkout
+  st = status -sb
+  br = branch
+  ci = commit
+  fo = fetch origin
+  d = !git --no-pager diff
+  stat = !git --no-pager diff --stat
+  m =  !git checkout $(git defaultBranch)
+
+  # Removes a file from the index
+  unstage = reset HEAD --
+
+  # if fatal: ref refs/remotes/origin/HEAD is not a symbolic ref
+  # Set remotes/origin/HEAD -> defaultBranch
+  remoteSetHead = remote set-head origin --auto
+
+  # Get default branch name
+  defaultBranch = !git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'
+
+# delete merged branches (but keep those that haven't diverged from default branch)
+  sweep = "!f() { \
+    local default=$(git defaultBranch); \
+    local base_hash=$(git rev-parse $default); \
+    git branch --merged $default --format='%(refname:short) %(objectname)' | \
+    while read branch hash; do \
+      [ \"$hash\" != \"$base_hash\" ] && echo \"$branch\"; \
+    done | \
+    grep -vE \"^($default|staging|master|main|production)$\" | \
+    xargs -r git branch -d; \
+    git remote prune origin; \
+  }; f"
+
+
+  # pull staging
+  gps = git pull origin staging
+
+[help]
+  autocorrect = 1
+
+[push]
+	default = simple
+
+[pull]
+	ff = only
+
+[branch "master"]
+  mergeoptions = --no-edit
+[branch "main"]
+  mergeoptions = --no-edit
+[branch "staging"]
+  mergeoptions = --no-edit
+[branch "production"]
+  mergeoptions = --no-edit
+
+[user]
+	email = 46218316+qblanc@users.noreply.github.com
+	name = Quentin Blanc
+[credential]
+	helper = osxkeychain
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+
+[init]
+  defaultBranch = main

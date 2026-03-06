@@ -1,0 +1,18 @@
+begin
+  require 'rubygems'
+  require 'pry'
+rescue LoadError
+end
+
+if defined?(Pry)
+  Pry.start
+  exit
+end
+
+if ENV['RAILS_ENV']
+  # custom code here
+  # for instance, to quick access to an user
+  # def user(id)
+  #   User.find(id)
+  # end
+end

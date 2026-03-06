@@ -1,0 +1,55 @@
+# Run `ghostty +show-config --default --docs` to view a list of
+# all available config options and their default values.
+#
+# Additionally, each config option is also explained in detail
+# on Ghostty's website, at https://ghostty.org/docs/config.
+
+# Config syntax crash course
+# ==========================
+# # The config file consists of simple key-value pairs,
+# # separated by equals signs.
+# font-family = Iosevka
+# window-padding-x = 2
+#
+# # Empty values are used to reset config keys to default.
+# key =
+
+#-----------------------------------  CONFIG  ---------------------------------------
+desktop-notifications = false
+quit-after-last-window-closed = true
+
+# useful options
+cursor-click-to-move = true
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+copy-on-select = clipboard
+
+# Keep splits/tabs between sessions
+window-save-state = always
+
+# Styling options
+macos-titlebar-style = tabs
+macos-window-buttons = hidden
+macos-icon = official
+
+# Light Cream Themes
+theme = Rose Pine Dawn
+# theme = Violet Light
+# theme = Selenized Light
+
+# ------------------------------ Shortcuts --------------------------------------
+
+# Naviguer entre les splits (Focus) avec Cmd + flèches
+keybind = super+up=goto_split:up
+keybind = super+down=goto_split:down
+keybind = super+left=goto_split:left
+keybind = super+right=goto_split:right
+
+# Redimensionner les splits avec Alt + flèches
+keybind = super+alt+up=resize_split:up,10
+keybind = super+alt+down=resize_split:down,10
+keybind = super+alt+left=resize_split:left,10
+keybind = super+alt+right=resize_split:right,10
+
+keybind = super+key_o=decrease_font_size:1
