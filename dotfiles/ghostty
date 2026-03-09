@@ -38,6 +38,8 @@ theme = Rose Pine Dawn
 # theme = Violet Light
 # theme = Selenized Light
 
+font-family = "MesloLGS NF"
+
 # ------------------------------ Shortcuts --------------------------------------
 
 # Naviguer entre les splits (Focus) avec Cmd + flèches
