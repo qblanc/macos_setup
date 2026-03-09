@@ -21,10 +21,8 @@ for name in "$DOTFILES_DIR"/*; do
     if [[ ! "$basename_file" =~ '\.sh$' ]] && [[ ! "$basename_file" =~ '\.json$' ]] && [[ ! "$basename_file" =~ '\.md$' ]] && [ "$basename_file" != 'ghostty' ]; then
       backup "$target"
 
-      if [ ! -e "$target" ]; then
-        echo "-----> Symlinking your new $target"
-        ln -s "$name" "$target"
-      fi
+      echo "-----> Symlinking your new $target"
+      ln -sf "$name" "$target"
     fi
   fi
 done
@@ -33,10 +31,8 @@ done
 GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 mkdir -p "$GHOSTTY_CONFIG_DIR"
 backup "$GHOSTTY_CONFIG_DIR/config"
-if [ ! -e "$GHOSTTY_CONFIG_DIR/config" ]; then
-  echo "-----> Symlinking Ghostty config"
-  ln -s "$DOTFILES_DIR/ghostty" "$GHOSTTY_CONFIG_DIR/config"
-fi
+echo "-----> Symlinking Ghostty config"
+ln -sf "$DOTFILES_DIR/ghostty" "$GHOSTTY_CONFIG_DIR/config"
 
 # VS Code settings & keybindings
 VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"

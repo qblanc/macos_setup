@@ -8,6 +8,7 @@ set -e
 # ─────────────────────────────────────────────
 GREEN="\033[1;32m"
 YELLOW="\033[1;33m"
+RED="\033[1;31m"
 BLUE="\033[1;34m"
 REGULAR="\033[0;39m"
 
@@ -55,10 +56,19 @@ else
 fi
 
 info "Updating Homebrew..."
+# Cleanup deprecated or broken taps that cause brew update to fail/warn
+if brew tap | grep -q "homebrew/cask-versions"; then
+  info "Removing deprecated homebrew/cask-versions tap..."
+  brew untap homebrew/cask-versions || true
+fi
+
 # If brew update fails with "/usr/local must be writable", fix permissions and retry
 if ! brew update 2>&1; then
-  info "brew update failed — fixing /usr/local permissions and retrying..."
-  sudo chown -R "$USER:admin" /usr/local
+  info "brew update failed — trying to fix common issues..."
+  # Only try sudo chown on Intel Macs or specific paths if needed
+  if [ -d /usr/local/Homebrew ]; then
+    sudo chown -R "$USER:admin" /usr/local /usr/local/Homebrew 2>/dev/null || true
+  fi
   brew update
 fi
 success "Homebrew updated"
@@ -75,6 +85,7 @@ brew_install() {
 
 brew_install git
 brew_install gh
+brew_install gnupg
 brew_install wget
 brew_install jq
 brew_install openssl
@@ -103,6 +114,32 @@ if ! command -v ghostty &>/dev/null && [ ! -d "/Applications/Ghostty.app" ]; the
 else
   skip "Ghostty"
 fi
+
+# ─────────────────────────────────────────────
+# 4b. Fonts
+# ─────────────────────────────────────────────
+info "Checking Ghostty fonts (MesloLGS NF)..."
+FONTS_DIR="$HOME/Library/Fonts"
+mkdir -p "$FONTS_DIR"
+BASE_URL="https://github.com/romkatv/powerlevel10k-media/raw/master"
+declare -a fonts=(
+  "MesloLGS%20NF%20Regular.ttf"
+  "MesloLGS%20NF%20Bold.ttf"
+  "MesloLGS%20NF%20Italic.ttf"
+  "MesloLGS%20NF%20Bold%20Italic.ttf"
+)
+
+for font in "${fonts[@]}"; do
+  # Decode URL encoding for local filename check (%20 -> " ")
+  font_filename=$(echo "$font" | sed 's/%20/ /g')
+  if [ -f "$FONTS_DIR/$font_filename" ]; then
+    skip "$font_filename"
+  else
+    info "Downloading $font_filename..."
+    curl -fsSL "$BASE_URL/$font" -o "$FONTS_DIR/$font_filename"
+    success "$font_filename installed"
+  fi
+done
 
 
 # ─────────────────────────────────────────────
@@ -220,7 +257,7 @@ fi
 # 10. Ruby (via mise)
 # ─────────────────────────────────────────────
 info "Checking Ruby (via mise)..."
-if mise ls ruby | grep -q "latest" || mise ls ruby | grep -q "$(mise res ruby@latest)"; then
+if mise ls ruby | grep -q "$(mise latest ruby)"; then
   skip "Ruby"
 else
   info "Installing latest Ruby..."
@@ -231,7 +268,7 @@ fi
 info "Installing Ruby gems..."
 gem update --system
 gem update bundler
-gem install rake rails rspec activerecord ruby-lsp rubocop-performance colored faker faraday pry-byebug
+gem install --no-document rake rails rspec activerecord ruby-lsp rubocop-performance colored faker faraday pry-byebug
 success "Gems installed"
 
 # If the following error is displayed:
@@ -254,7 +291,7 @@ success "Gems installed"
 # 11. Python (via mise)
 # ─────────────────────────────────────────────
 info "Checking Python (via mise)..."
-if mise ls python | grep -q "latest" || mise ls python | grep -q "$(mise res python@latest)"; then
+if mise ls python | grep -q "$(mise latest python)"; then
   skip "Python"
 else
   info "Installing latest Python..."
@@ -267,13 +304,17 @@ fi
 # 12. Node.js (via mise)
 # ─────────────────────────────────────────────
 info "Checking Node.js (via mise)..."
-if mise ls node | grep -q "lts"; then
+if mise ls node | grep -q "$(mise latest node@lts)"; then
   skip "Node.js (LTS)"
 else
   info "Installing Node.js (LTS)..."
   mise use -g node@lts
   success "Node.js installed"
 fi
+
+info "Updating npm to latest..."
+npm install -g npm@latest
+success "npm updated"
 
 info "Cleaning caches..."
 mise cache clean
@@ -307,7 +348,7 @@ else
   # méthode standard pour installer des exécutables globaux sur la machine.
   # Les versions modernes de Yarn (v2+) ont d'ailleurs supprimé l'option 'yarn global'.
   npm install -g typescript ts-node
-  success "TypeScript installé"
+  success "TypeScript installed"
 fi
 
 
@@ -316,8 +357,6 @@ fi
 # ─────────────────────────────────────────────
 info "Checking PostgreSQL..."
 brew_install postgresql
-brew_install libpq
-brew link --force libpq
 brew services start postgresql
 success "PostgreSQL checked and started"
 
@@ -355,6 +394,6 @@ fi
 # Done
 # ─────────────────────────────────────────────
 echo ""
-echo "${GREEN}✔ All steps from macos-install.md & macos-install-2.md are complete!${REGULAR}"
-echo "${YELLOW}Please restart your terminal to apply all changes.${REGULAR}"
+echo "${GREEN}✔ All steps are complete!${REGULAR}"
+echo "${RED}🛑 Please restart your terminal to apply all changes.${REGULAR}"
 echo ""
