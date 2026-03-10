@@ -92,28 +92,51 @@ brew_install openssl
 brew_install libyaml
 brew_install gmp
 brew_install rust
+brew_install defaultbrowser
+
 
 
 # ─────────────────────────────────────────────
 # 4. Apps (Casks)
 # ─────────────────────────────────────────────
-info "Checking Visual Studio Code..."
-if [ -d "/Applications/Visual Studio Code.app" ]; then
-  skip "Visual Studio Code"
-else
-  info "Installing Visual Studio Code..."
-  brew install --cask visual-studio-code
-  success "Visual Studio Code installed"
-fi
+cask_install() {
+  local app_pkg=$1
+  local app_name_display=$2
 
-info "Checking Ghostty..."
-if ! command -v ghostty &>/dev/null && [ ! -d "/Applications/Ghostty.app" ]; then
-  info "Installing Ghostty..."
-  brew install --cask ghostty
-  success "Ghostty installed"
-else
-  skip "Ghostty"
-fi
+  info "Checking $app_name_display..."
+  # Check if already installed via Homebrew Cask or if the .app exists in /Applications
+  if brew list --cask "$app_pkg" &>/dev/null || [ -n "$(mdfind "kMDItemFSName == '${app_name_display}.app'")" ]; then
+    skip "$app_name_display"
+  else
+    info "Installing $app_name_display..."
+    brew install --cask "$app_pkg"
+    success "$app_name_display installed"
+  fi
+}
+
+cask_install visual-studio-code "Visual Studio Code"
+cask_install ghostty "Ghostty"
+cask_install google-chrome "Google Chrome"
+cask_install firefox "Firefox"
+cask_install zen "Zen"
+cask_install caffeine "Caffeine"
+cask_install spotify "Spotify"
+cask_install vlc "VLC"
+cask_install antigravity "Antigravity"
+cask_install github "GitHub Desktop"
+cask_install postman "Postman"
+cask_install whatsapp "WhatsApp"
+cask_install logi-options+ "Logi Options+"
+cask_install the-unarchiver "The Unarchiver"
+
+info "Setting Zen as default browser..."
+defaultbrowser zen
+success "Zen set as default browser"
+
+# Note: Screenzen is not found in Homebrew Cask yet.
+
+# Manual installation recommended: https://screenzen.co/
+
 
 # ─────────────────────────────────────────────
 # 4b. Fonts

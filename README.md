@@ -21,6 +21,17 @@ To start the full installation process, simply open your terminal at the root of
 zsh install.sh
 ```
 
+To also configure mac_os_defaults, run
+
+```bash
+zsh mac_os_defaults.sh
+```
+
+To setup the dock automatically to a minimal and nice config, run
+```bash
+zsh default_dock_setup.sh
+```
+
 ## 🏗 Architecture
 
 The setup logic is cleanly separated into two main scripts and one configuration directory:
